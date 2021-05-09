@@ -1,42 +1,32 @@
-version: "3.4"
-
-networks:
-  postgres:
+version: "3.1"
 
 volumes:
   postgres-data:
   postgres-log:
 
-services:
-  poke-exchange-db:
-    image: postgres
-    networks:
-      - postgres
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - postgres-log:/var/log/postgresql
-    restart: always
-    env_file: .env
-    environment:
-      POSTGRES_DB: ${POKE_EXCHANGE_DB_NAME}
-      POSTGRES_USER: ${POKE_EXCHANGE_DB_USER}
-      POSTGRES_PASSWORD: ${POKE_EXCHANGE_DB_PASSWORD}
+networks:
+  database-network:
 
+services:
   poke-exchange-api:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./src:/usr/src/app/src
-      - ./target:/usr/src/app/target
+    image: poke-exchange-api:latest
     networks:
-      - postgres
+      - database-network
+    depends_on:
+      - poke-exchange-db
     ports:
       - 6000:8080
-    env_file: .env
+
+  poke-exchange-db:
+    image: postgres:12.2-alpine
     environment:
-      POSTGRES_DB: ${POKE_EXCHANGE_DB_NAME}
-      POSTGRES_URL: ${POKE_EXCHANGE_DB_URL}
-      POSTGRES_USER: ${POKE_EXCHANGE_DB_USER}
-      POSTGRES_PASSWORD: ${POKE_EXCHANGE_DB_PASSWORD}
-      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=poke_exchange_db
+      - POSTGRES_USER=local
+      - POSTGRES_PASSWORD=local
+      - POSTGRES_HOST=0.0.0.0
+    volumes:
+      - ./.docker/postgres/data:/var/lib/postgresql/data
+      - ./.docker/postgres/log:/var/log/postgresql
+    networks:
+      - database-network
