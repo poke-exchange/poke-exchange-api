@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-# Issue ID : TITLE
+# Issue: TITLE
 
 ## Checklist
 
