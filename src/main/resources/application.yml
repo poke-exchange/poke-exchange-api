@@ -3,17 +3,15 @@ server:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:baldwars
+    url: jdbc:postgresql://poke-exchange-db:5432/poke_exchange_db
     username: local
     password: local
-    driver-class-name: org.h2.Driver
-
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     generate-ddl: true
     hibernate:
       use-new-id-generator-mappings: true
-      ddl-auto: create
+      ddl-auto: none
     open-in-view: false
 
 springdoc:
