@@ -1,0 +1,42 @@
+version: "3.4"
+
+networks:
+  postgres:
+
+volumes:
+  postgres-data:
+  postgres-log:
+
+services:
+  poke-exchange-db:
+    image: postgres
+    networks:
+      - postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-log:/var/log/postgresql
+    restart: always
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POKE_EXCHANGE_DB_NAME}
+      POSTGRES_USER: ${POKE_EXCHANGE_DB_USER}
+      POSTGRES_PASSWORD: ${POKE_EXCHANGE_DB_PASSWORD}
+
+  poke-exchange-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./target:/usr/src/app/target
+    networks:
+      - postgres
+    ports:
+      - 6000:8080
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POKE_EXCHANGE_DB_NAME}
+      POSTGRES_URL: ${POKE_EXCHANGE_DB_URL}
+      POSTGRES_USER: ${POKE_EXCHANGE_DB_USER}
+      POSTGRES_PASSWORD: ${POKE_EXCHANGE_DB_PASSWORD}
+      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET}
