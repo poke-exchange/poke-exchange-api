@@ -2,21 +2,27 @@ server:
   port: 8080
 
 spring:
-  datasource:
-    url: jdbc:postgresql://poke-exchange-db:5432/poke_exchange_db
-    username: local
-    password: local
+  h2:
+    console:
+      enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
     generate-ddl: true
-    hibernate:
-      use-new-id-generator-mappings: true
-      ddl-auto: none
     open-in-view: false
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: ${POKE_EXCHANGE_DB_URL}/${POKE_EXCHANGE_DB_NAME}
+    username: ${POKE_EXCHANGE_DB_USER}
+    password: ${POKE_EXCHANGE_DB_PASSWORD}
 
-springdoc:
-  api-docs:
-    path: /api-docs
+security:
+  token:
+    secret: ${JWT_TOKEN_SECRET}
 
-jwt:
-  secret: pokeExchange
+logging:
+  level:
+    org:
+      springframework:
+        security: error
