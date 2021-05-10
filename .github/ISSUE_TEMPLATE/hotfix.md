@@ -1,8 +1,8 @@
 ---
-name: Feature
-about: Describe this issue template's purpose here.
-title: "[ENH] - "
-labels: enhancement
+name: Hotfix
+about: Used in case of production issue.
+title: "[HOTFIX] - "
+labels: hotfix
 assignees: ''
 
 ---
