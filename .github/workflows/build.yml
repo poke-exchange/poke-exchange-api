@@ -33,8 +33,8 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
       - name: Deploy on DEV server
-        uses: muinmomin/webhook-action@v1.0.0
+        uses: fjogeleit/http-request-action@master
         with:
           url: ${{ secrets.WEBHOOK_DEV_SERVER_URL }}
-          data: "{'command': 'publish'}"
+          method: POST
 
