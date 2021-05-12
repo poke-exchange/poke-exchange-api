@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY pom.xml .
 
-RUN mvn dependency:go-offline
+#RUN mvn dependency:go-offline
 
 COPY src src
 
@@ -23,4 +23,4 @@ RUN addgroup -S spring \
 
 USER spring:spring
 
-CMD java -jar ./app.jar
+CMD ["java", "-jar", "./app.jar"]
