@@ -9,9 +9,9 @@ spring:
     show-sql: true
     generate-ddl: true
     open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_USER}
