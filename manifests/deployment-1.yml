@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "pokexchangecluster-34cb"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "pokexchangecluster-34cb"
+  template:
+    metadata:
+      labels:
+        app: "pokexchangecluster-34cb"
+    spec:
+      containers:
+        - name: "pokexchangecluster-34cb"
+          image: "pokexchange.azurecr.io/pokexchangecluster"
+          ports:
+          - containerPort: 80
