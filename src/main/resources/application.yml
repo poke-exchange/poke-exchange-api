@@ -9,17 +9,17 @@ spring:
     show-sql: true
     generate-ddl: true
     open-in-view: false
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${POKE-EXCHANGE-DB-URL}/${POKE-EXCHANGE-DB-NAME}
+    username: ${POKE-EXCHANGE-DB-USER}
+    password: ${POKE-EXCHANGE-DB-PASSWORD}
 
 security:
   token:
-    secret: ${JWT_TOKEN_SECRET}
+    secret: ${JWT-TOKEN-SECRET}
 
 logging:
   level:
