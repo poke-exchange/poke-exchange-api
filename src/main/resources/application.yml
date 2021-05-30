@@ -13,13 +13,13 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: ${POKE_EXCHANGE_DB_URL}/${POKE_EXCHANGE_DB_NAME}
-    username: ${POKE_EXCHANGE_DB_USER}
-    password: ${POKE_EXCHANGE_DB_PASSWORD}
+    url: ${POKE-EXCHANGE-DB-URL}/${POKE-EXCHANGE-DB-NAME}
+    username: ${POKE-EXCHANGE-DB-USER}
+    password: ${POKE-EXCHANGE-DB-PASSWORD}
 
 security:
   token:
-    secret: ${JWT_TOKEN_SECRET}
+    secret: ${JWT-TOKEN-SECRET}
 
 logging:
   level:
