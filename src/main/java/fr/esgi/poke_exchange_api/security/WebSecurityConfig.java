@@ -45,8 +45,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf().disable()
-                .authorizeRequests().antMatchers("/api/auth/login").permitAll()
+                .authorizeRequests()
+                .antMatchers("/api/auth/login").permitAll()
                 .antMatchers("/api/auth/register").permitAll()
+                .antMatchers("/api/pokemons/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
