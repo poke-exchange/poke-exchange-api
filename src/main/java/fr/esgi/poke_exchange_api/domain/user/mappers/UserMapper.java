@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserMapper {
-
     public User from(UserEntity entity) {
         var user = new User();
         user.setId(entity.getId());
@@ -18,7 +17,7 @@ public class UserMapper {
         user.setEmail(entity.getEmail());
         user.setPassword(entity.getPassword());
         user.setEloPoints(entity.getEloPoints());
-
+        user.setPokemons(entity.getPokemons());
         return user;
     }
 }

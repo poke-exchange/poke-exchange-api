@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Component
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class UserEntityMapper {
         entity.setPassword(body.getPassword());
         entity.setEloPoints(0);
         entity.setRegistered(LocalDateTime.now());
-
+        entity.setPokemons(new ArrayList<Integer>());
         return entity;
     }
 }

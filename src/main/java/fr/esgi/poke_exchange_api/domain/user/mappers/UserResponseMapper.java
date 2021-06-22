@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class UserResponseMapper {
-
     public UserResponse from(User user) {
         var userResponse = new UserResponse();
         userResponse.setId(user.getId());

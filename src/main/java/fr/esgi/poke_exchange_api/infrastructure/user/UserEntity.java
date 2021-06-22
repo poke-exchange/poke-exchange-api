@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data
@@ -30,6 +30,17 @@ public class UserEntity {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "pokemons",
+            joinColumns = @JoinColumn(name = "user_entity_id")
+    )
+    @Column(name = "pokemons")
+    private List<Integer> pokemons = new ArrayList<Integer>();
+
+    @Column(name = "last_claim_date", nullable = true)
+    private LocalDateTime lastClaimDate;
 
     @Column(nullable = false)
     private String password;
