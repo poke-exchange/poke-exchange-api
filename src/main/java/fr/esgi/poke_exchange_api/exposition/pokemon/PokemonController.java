@@ -32,6 +32,16 @@ public class PokemonController {
         }
     }
 
+    @GetMapping("/random")
+    public ResponseEntity<Pokemon> randomPokemon() {
+        try {
+            return ResponseEntity.ok(pokemonService.getRandomPokemon());
+        } catch(RuntimeException e) {
+            System.out.println("the fuck " + e);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping(params = { "limit", "offset" })
     public ResponseEntity<PokemonsResponse> getAllPokemons(@RequestParam("limit") int limit,
                                                            @RequestParam("offset") int offset) {

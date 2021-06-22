@@ -7,9 +7,13 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class PokemonService {
+
+    final int NUMBER_OF_POKEMONS = 898;
+
     RestTemplate restTemplate = new RestTemplate();
 
     public Pokemon getPokemonById(Integer id) {
@@ -33,5 +37,15 @@ public class PokemonService {
         Pokemons pokemons = restTemplate.getForObject(pokeApi, Pokemons.class, params);
 
         return pokemons;
+    }
+
+    public Pokemon getRandomPokemon() {
+        Pokemon pokemon = getPokemonById(generateRandomIntIntRange(1, NUMBER_OF_POKEMONS));
+        return pokemon;
+    }
+
+    public static int generateRandomIntIntRange(int min, int max) {
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 }
