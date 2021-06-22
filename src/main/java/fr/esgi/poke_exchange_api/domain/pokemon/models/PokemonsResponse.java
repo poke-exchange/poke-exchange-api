@@ -7,7 +7,9 @@ import java.util.List;
 
 @Data
 @RequiredArgsConstructor
-public class PokemonHeldItem {
-    private NamedAPIResource item;
-    private List<PokemonHeldItemVersion> version_details;
+public class PokemonsResponse {
+    private Integer count;
+    private String next;
+    private String previous;
+    private List<Integer> results;
 }
