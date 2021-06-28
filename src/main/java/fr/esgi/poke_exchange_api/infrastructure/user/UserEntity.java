@@ -31,13 +31,8 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "pokemons",
-            joinColumns = @JoinColumn(name = "user_entity_id")
-    )
-    @Column(name = "pokemons")
-    private List<Integer> pokemons = new ArrayList<Integer>();
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<UserPokemonEntity> pokemons = new ArrayList<UserPokemonEntity>();
 
     @Column(name = "last_claim_date", nullable = true)
     private LocalDateTime lastClaimDate;

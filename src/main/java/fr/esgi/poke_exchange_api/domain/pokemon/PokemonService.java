@@ -1,10 +1,12 @@
 package fr.esgi.poke_exchange_api.domain.pokemon;
 
+import fr.esgi.poke_exchange_api.domain.pokemon.models.Claim;
 import fr.esgi.poke_exchange_api.domain.pokemon.models.Pokemon;
 import fr.esgi.poke_exchange_api.domain.pokemon.models.Pokemons;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -47,5 +49,12 @@ public class PokemonService {
     public static int generateRandomIntIntRange(int min, int max) {
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
+    }
+
+    public Pokemon claim(Claim claim) {
+        if (claim.getLastClaimDate().plusWeeks(1).isBefore(LocalDateTime.now())) {
+            return getRandomPokemon();
+        }
+        throw new PokemonClaimedException();
     }
 }

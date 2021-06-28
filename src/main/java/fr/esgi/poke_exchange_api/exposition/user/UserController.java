@@ -1,9 +1,12 @@
 package fr.esgi.poke_exchange_api.exposition.user;
 
 import fr.esgi.poke_exchange_api.domain.pokemon.models.Pokemons;
+import fr.esgi.poke_exchange_api.domain.user.mappers.UserPokemonResponseMapper;
 import fr.esgi.poke_exchange_api.domain.user.mappers.UserResponseMapper;
 import fr.esgi.poke_exchange_api.domain.user.UserService;
 import fr.esgi.poke_exchange_api.domain.user.UserNotFoundException;
+import fr.esgi.poke_exchange_api.domain.user.models.PokemonRequestBody;
+import fr.esgi.poke_exchange_api.domain.user.models.UserPokemonResponse;
 import fr.esgi.poke_exchange_api.domain.user.models.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -21,6 +25,7 @@ public class UserController {
 
     private final UserResponseMapper toUserResponse;
     private final UserService userService;
+    private final UserPokemonResponseMapper toUserPokemonResponse;
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> findAll() {
@@ -55,19 +60,25 @@ public class UserController {
     }
 
     @GetMapping("/{id}/pokemons")
-    public ResponseEntity<List<Integer>> findAllUserPokemons(@PathVariable UUID id) {
+    public ResponseEntity<List<UserPokemonResponse>> findAllUserPokemons(@PathVariable UUID id) {
         try {
-            return ResponseEntity.ok(userService.findUserPokemonsById(id));
+            return ResponseEntity.ok(userService.findUserPokemonsById(id)
+                    .stream()
+                    .map(pokemon -> toUserPokemonResponse.from(pokemon))
+                    .collect(Collectors.toList()));
         } catch (UserNotFoundException exception) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/{id}/pokemons")
-    public ResponseEntity<List<Integer>> addPokemonToUser(@PathVariable UUID id,
-                                                    @RequestBody Map<String, Integer> pokemonId) {
+    public ResponseEntity<List<UserPokemonResponse>> addPokemonToUser(@PathVariable UUID id,
+                                                                      @RequestBody PokemonRequestBody pokemonBody) {
         try {
-            return ResponseEntity.ok(userService.addPokemonToUser(id, pokemonId.get("pokemonId")));
+            return ResponseEntity.ok(userService.addPokemonToUser(id, pokemonBody)
+                    .stream()
+                    .map(pokemon -> toUserPokemonResponse.from(pokemon))
+                    .collect(Collectors.toList()));
         } catch (UserNotFoundException exception) {
             return ResponseEntity.notFound().build();
         }

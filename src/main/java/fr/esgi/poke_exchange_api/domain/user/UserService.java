@@ -2,8 +2,13 @@ package fr.esgi.poke_exchange_api.domain.user;
 
 import fr.esgi.poke_exchange_api.domain.user.mappers.UserEntityMapper;
 import fr.esgi.poke_exchange_api.domain.user.mappers.UserMapper;
+import fr.esgi.poke_exchange_api.domain.user.mappers.UserPokemonEntityMapper;
+import fr.esgi.poke_exchange_api.domain.user.mappers.UserPokemonMapper;
+import fr.esgi.poke_exchange_api.domain.user.models.PokemonRequestBody;
 import fr.esgi.poke_exchange_api.domain.user.models.User;
 import fr.esgi.poke_exchange_api.domain.authentication.RegisterRequestBody;
+import fr.esgi.poke_exchange_api.domain.user.models.UserPokemon;
+import fr.esgi.poke_exchange_api.infrastructure.user.UserPokemonEntity;
 import fr.esgi.poke_exchange_api.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +29,9 @@ public class UserService {
     private final UserMapper toUser;
     private final UserEntityMapper toUserEntity;
     private final UserRepository repository;
+    private final UserPokemonMapper toUserPokemon;
+    private final UserPokemonEntityMapper toUserPokemonEntity;
+
 
     public List<User> findAll() {
         var users = new ArrayList<User>();
@@ -44,34 +52,39 @@ public class UserService {
         return toUser.from(optionalUser.get());
     }
 
-    public List<Integer> findUserPokemonsById(UUID id) {
+    public List<UserPokemon> findUserPokemonsById(UUID id) {
         var optionalUser = repository.findById(id);
 
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException();
         }
 
-        var pokemonsList = optionalUser.get().getPokemons();
-        System.out.println(pokemonsList);
+        var user = toUser.from(optionalUser.get());
+
+        var pokemonsList = user.getPokemons();
+
         if(pokemonsList.isEmpty()) {
-            return new ArrayList<>();
+            return new ArrayList<UserPokemon>();
         }
 
-        return optionalUser.get().getPokemons();
+        return user.getPokemons();
     }
 
-    public List<Integer> addPokemonToUser(UUID id, int pokemonId) {
+    public List<UserPokemon> addPokemonToUser(UUID id, PokemonRequestBody pokemon) {
         var optionalUser = repository.findById(id);
         if (optionalUser.isEmpty()) {
             throw new UserNotFoundException();
         }
+        var user = toUser.from(optionalUser.get());
+
+        var pokemonsList = user.getPokemons();
 
         var pokemons = optionalUser.get().getPokemons();
 
-        pokemons.add(pokemonId);
-        optionalUser.get().setPokemons(pokemons);
+        pokemonsList.add(toUserPokemon.from(toUserPokemonEntity.from(pokemon)));
+        user.setPokemons(pokemonsList);
         repository.save(optionalUser.get());
-        return optionalUser.get().getPokemons();
+        return user.getPokemons();
     }
 
     public User findOneByUsername(String username) {

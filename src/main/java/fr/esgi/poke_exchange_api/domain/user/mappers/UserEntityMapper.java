@@ -1,7 +1,9 @@
 package fr.esgi.poke_exchange_api.domain.user.mappers;
 
 import fr.esgi.poke_exchange_api.domain.authentication.RegisterRequestBody;
+import fr.esgi.poke_exchange_api.domain.user.models.UserPokemon;
 import fr.esgi.poke_exchange_api.infrastructure.user.UserEntity;
+import fr.esgi.poke_exchange_api.infrastructure.user.UserPokemonEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +22,7 @@ public class UserEntityMapper {
         entity.setPassword(body.getPassword());
         entity.setEloPoints(0);
         entity.setRegistered(LocalDateTime.now());
-        entity.setPokemons(new ArrayList<Integer>());
+        entity.setPokemons(new ArrayList<UserPokemonEntity>());
         return entity;
     }
 }

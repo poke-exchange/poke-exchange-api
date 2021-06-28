@@ -5,9 +5,12 @@ import fr.esgi.poke_exchange_api.infrastructure.user.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class UserMapper {
+    private final UserPokemonMapper toUserPokemon;
     public User from(UserEntity entity) {
         var user = new User();
         user.setId(entity.getId());
@@ -17,7 +20,11 @@ public class UserMapper {
         user.setEmail(entity.getEmail());
         user.setPassword(entity.getPassword());
         user.setEloPoints(entity.getEloPoints());
-        user.setPokemons(entity.getPokemons());
+        user.setPokemons(entity
+                .getPokemons()
+                .stream()
+                .map(pokemon -> toUserPokemon.from(pokemon))
+                .collect(Collectors.toList()));
         return user;
     }
 }

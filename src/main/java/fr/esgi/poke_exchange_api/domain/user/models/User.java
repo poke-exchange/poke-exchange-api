@@ -17,7 +17,7 @@ public class User {
     private String lastName;
     private String email;
     private String password;
-    private List<Integer> pokemons;
+    private List<UserPokemon> pokemons;
     private LocalDateTime lastClaimDate;
     private Integer eloPoints;
 }
