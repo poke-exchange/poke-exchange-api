@@ -14,23 +14,22 @@ import java.util.Random;
 @Service
 public class PokemonService {
 
-    final int NUMBER_OF_POKEMONS = 898;
+    private final int NUMBER_OF_POKEMONS = 898;
+    private final String baseApi = "https://pokeapi.co/api/v2/pokemon";
 
     RestTemplate restTemplate = new RestTemplate();
 
     public Pokemon getPokemonById(Integer id) {
-        final String pokeApi = "https://pokeapi.co/api/v2/pokemon/{id}";
+        final String pokeApi = baseApi + "/{id}";
 
         Map<String, String> params = new HashMap<>();
         params.put("id", id.toString());
 
-        Pokemon pokemon = restTemplate.getForObject(pokeApi, Pokemon.class, params);
-
-        return pokemon;
+        return restTemplate.getForObject(pokeApi, Pokemon.class, params);
     }
 
     public Pokemons getAllPokemons(Integer limit, Integer offset) {
-        final String pokeApi = "https://pokeapi.co/api/v2/pokemon?limit={limit}&offset={offset}";
+        final String pokeApi = baseApi + "?limit={limit}&offset={offset}";
 
         Map<String, String> params = new HashMap<>();
         params.put("limit", limit.toString());

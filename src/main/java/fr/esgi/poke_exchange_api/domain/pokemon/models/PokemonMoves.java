@@ -1,5 +1,6 @@
 package fr.esgi.poke_exchange_api.domain.pokemon.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -9,5 +10,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PokemonMoves {
     private NamedAPIResource move;
-    private List<PokemonMoveVersion> version_group_details;
+    @JsonProperty("version_group_details")
+    private List<PokemonMoveVersion> versionGroupDetails;
 }
