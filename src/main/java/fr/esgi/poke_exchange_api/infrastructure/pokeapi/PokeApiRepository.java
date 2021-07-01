@@ -30,12 +30,12 @@ public class PokeApiRepository {
         return this.http.getForObject(pokeApi, Pokemon.class, params);
     }
 
-    public Pokemons findAll(Integer limit, Integer offset) {
+    public Pokemons findMany(Integer limit, Integer idStart) {
         final String pokeApi = this.url + "?limit={limit}&offset={offset}";
 
         Map<String, String> params = new HashMap<>();
         params.put("limit", limit.toString());
-        params.put("offset", offset.toString());
+        params.put("offset", idStart.toString());
 
         return this.http.getForObject(pokeApi, Pokemons.class, params);
     }
