@@ -50,6 +50,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/auth/register").permitAll()
                 .antMatchers("/api/pokemon").permitAll()
                 .antMatchers("/api/pokemon/*").permitAll()
+                .antMatchers("/api/cards").permitAll()
+                .antMatchers("/api/cards/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)

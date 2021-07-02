@@ -1,15 +1,17 @@
 package fr.esgi.poke_exchange_api.infrastructure.pokeapi;
 
-import fr.esgi.poke_exchange_api.domain.pokemon.models.Pokemon;
-import fr.esgi.poke_exchange_api.domain.pokemon.models.Pokemons;
+import fr.esgi.poke_exchange_api.infrastructure.pokeapi.models.pokemon.Pokemon;
+import fr.esgi.poke_exchange_api.infrastructure.pokeapi.models.pokemon.PokemonSpecies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-@Component
+@Repository
 public class PokeApiRepository {
 
     private final String url;
@@ -21,22 +23,60 @@ public class PokeApiRepository {
         this.http = new RestTemplate();
     }
 
-    public Pokemon findOneById(Integer id) {
-        final String pokeApi = this.url + "/{id}";
+    public Optional<Pokemon> findOneById(Integer id) {
+        try {
+            if (this.notExists(id)) {
+                return Optional.empty();
+            }
 
-        Map<String, String> params = new HashMap<>();
-        params.put("id", id.toString());
+            final String pokeApi = this.url + "/{id}";
 
-        return this.http.getForObject(pokeApi, Pokemon.class, params);
+            Map<String, String> params = new HashMap<>();
+            params.put("id", id.toString());
+            
+            var response = this.http.getForObject(pokeApi, Pokemon.class, params);
+            if (response == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(response);
+//
+        } catch (RestClientException exception) {
+            return Optional.empty();
+        }
     }
 
-    public Pokemons findMany(Integer limit, Integer idStart) {
-        final String pokeApi = this.url + "?limit={limit}&offset={offset}";
+    public boolean notExists(Integer pokemonId) {
+        return pokemonId < PokemonRangeIds.firstId || pokemonId > PokemonRangeIds.lastId;
+    }
 
-        Map<String, String> params = new HashMap<>();
-        params.put("limit", limit.toString());
-        params.put("offset", idStart.toString());
+    public Optional<Integer> findPokemonGeneration(Pokemon pokemon) {
+        if (this.notExists(pokemon.getId())) {
+            return Optional.empty();
+        }
 
-        return this.http.getForObject(pokeApi, Pokemons.class, params);
+        var url = pokemon.getSpecies().getUrl();
+        var species = this.http.getForObject(url, PokemonSpecies.class);
+
+        if (species == null) {
+            return Optional.empty();
+        }
+
+        var generationUrl = species.getGeneration().getUrl().split("/");
+        try {
+            var response = Integer.parseInt(generationUrl[generationUrl.length - 1]);
+            return Optional.of(response);
+
+        } catch (NumberFormatException ignored) {
+            return Optional.empty();
+        }
+    }
+
+    public Integer firstPokemonId() {
+        return PokemonRangeIds.firstId;
+    }
+
+    public Integer lastPokemonId() {
+        return PokemonRangeIds.lastId;
     }
 }

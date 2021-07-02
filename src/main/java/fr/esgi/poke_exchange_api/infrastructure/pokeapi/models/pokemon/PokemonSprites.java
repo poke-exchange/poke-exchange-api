@@ -1,4 +1,4 @@
-package fr.esgi.poke_exchange_api.infrastructure.pokeapi.models;
+package fr.esgi.poke_exchange_api.infrastructure.pokeapi.models.pokemon;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -1,6 +1,7 @@
-package fr.esgi.poke_exchange_api.infrastructure.pokeapi.models;
+package fr.esgi.poke_exchange_api.infrastructure.pokeapi.models.pokemon;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.esgi.poke_exchange_api.infrastructure.pokeapi.models.ResourceLink;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -8,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PokemonStat {
 
-    private NamedAPIResource stat;
+    private ResourceLink stat;
 
     private Integer effort;
 

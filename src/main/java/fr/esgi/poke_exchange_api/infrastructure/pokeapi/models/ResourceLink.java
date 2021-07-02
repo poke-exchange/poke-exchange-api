@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class NamedAPIResource {
+public class ResourceLink {
     private String name;
     private String url;
 }
