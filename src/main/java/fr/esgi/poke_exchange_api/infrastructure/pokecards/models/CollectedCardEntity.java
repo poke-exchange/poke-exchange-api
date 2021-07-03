@@ -1,5 +1,8 @@
 package fr.esgi.poke_exchange_api.infrastructure.pokecards.models;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,7 +10,9 @@ import javax.persistence.Id;
 import java.util.UUID;
 
 @Entity
-public class UserCardEntity {
+@Data
+@RequiredArgsConstructor
+public class CollectedCardEntity {
 
     @Id
     @GeneratedValue
