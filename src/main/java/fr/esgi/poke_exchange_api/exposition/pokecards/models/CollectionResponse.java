@@ -1,4 +1,4 @@
-package fr.esgi.poke_exchange_api.exposition.pokecards;
+package fr.esgi.poke_exchange_api.exposition.pokecards.models;
 
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
 import lombok.Data;
