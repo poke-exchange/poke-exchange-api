@@ -1,6 +1,5 @@
 package fr.esgi.poke_exchange_api.exposition.user;
 
-import fr.esgi.poke_exchange_api.domain.pokemon.models.Pokemons;
 import fr.esgi.poke_exchange_api.domain.user.mappers.UserPokemonResponseMapper;
 import fr.esgi.poke_exchange_api.domain.user.mappers.UserResponseMapper;
 import fr.esgi.poke_exchange_api.domain.user.UserService;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -64,7 +62,7 @@ public class UserController {
         try {
             return ResponseEntity.ok(userService.findUserPokemonsById(id)
                     .stream()
-                    .map(pokemon -> toUserPokemonResponse.from(pokemon))
+                    .map(toUserPokemonResponse::from)
                     .collect(Collectors.toList()));
         } catch (UserNotFoundException exception) {
             return ResponseEntity.notFound().build();
@@ -77,7 +75,7 @@ public class UserController {
         try {
             return ResponseEntity.ok(userService.addPokemonToUser(id, pokemonBody)
                     .stream()
-                    .map(pokemon -> toUserPokemonResponse.from(pokemon))
+                    .map(toUserPokemonResponse::from)
                     .collect(Collectors.toList()));
         } catch (UserNotFoundException exception) {
             return ResponseEntity.notFound().build();
