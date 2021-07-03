@@ -53,8 +53,9 @@ public class PokemonCardMakerService implements PokeCardMaker {
     private PokemonCard setPokeCard(Pokemon pokemon) {
         var pokeCard = new PokemonCard();
 
+        pokeCard.setId(pokemon.getId());
         pokeCard.setName(pokemon.getName());
-        pokeCard.setRarity(this.getPokemonRarity(pokemon));
+        pokeCard.setRarity(this.getPokemonRarity(pokemon).toString().toLowerCase());
         pokeCard.setHealth(this.getPokemonHealth(pokemon));
         pokeCard.setHeight(pokemon.getHeight());
         pokeCard.setWeight(pokemon.getWeight());
