@@ -11,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class Pokemon {
 
-    private int id;
+    private Integer id;
 
     private String name;
 
