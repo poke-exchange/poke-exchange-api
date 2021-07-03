@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @RequiredArgsConstructor
-public class CollectionResponse {
+public class Collection {
 
     private final UUID userId;
     private final List<CollectedCard> cards;
