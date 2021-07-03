@@ -2,7 +2,7 @@ package fr.esgi.poke_exchange_api.domain.pokecards.services;
 
 import fr.esgi.poke_exchange_api.domain.pokecards.mappers.CollectedCardMapper;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
-import fr.esgi.poke_exchange_api.infrastructure.pokecards.UserCardRepository;
+import fr.esgi.poke_exchange_api.infrastructure.pokecards.CollectedCardsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CollectionService {
 
-    private final UserCardRepository repository;
+    private final CollectedCardsRepository repository;
     private final CollectedCardMapper mapper;
 
     public List<CollectedCard> findUserCollection(UUID userId) {

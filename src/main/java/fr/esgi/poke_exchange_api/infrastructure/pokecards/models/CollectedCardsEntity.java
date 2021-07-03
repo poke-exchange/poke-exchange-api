@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Data
 @RequiredArgsConstructor
-public class CollectedCardEntity {
+public class CollectedCardsEntity {
 
     @Id
     @GeneratedValue
