@@ -1,5 +1,6 @@
 package fr.esgi.poke_exchange_api.domain.pokecards.services;
 
+import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.PokeCardNotFoundException;
 import fr.esgi.poke_exchange_api.domain.pokecards.mappers.CollectedCardMapper;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
 import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
@@ -52,6 +53,7 @@ public class CollectionService {
         if (request.getCards().isEmpty()) {
             collection = this.mergeCollections(request.getCards(), userCollection);
             collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
+
             this.deleteUserCollection(request.getUserId());
         }
 
@@ -60,10 +62,47 @@ public class CollectionService {
         }
     }
 
-    public void deleteUserCollection(UUID user) {
+    public boolean updateCardQuantity(UUID user, CollectedCard card) {
+        var entityOptional = this.repository.findAll().stream()
+                .filter(entity -> entity.getUserId().equals(user))
+                .filter(entity -> entity.getCardId().equals(card.getCardId()))
+                .findFirst();
+
+        if (entityOptional.isEmpty()) {
+            throw new PokeCardNotFoundException();
+        }
+
+        var entity = entityOptional.get();
+
+        if (card.getQuantity().equals(0)) {
+            this.repository.deleteById(entity.getId());
+            return true;
+        }
+
+        entity.setQuantity(card.getQuantity());
+        var modifiedEntity = this.repository.save(entity);
+
+        return modifiedEntity.getQuantity().equals(card.getQuantity());
+    }
+
+    private void deleteCardFromUserCollection(UUID user, CollectedCard card) {
+        var entityOptional = this.repository.findAll().stream()
+                .filter(entity -> entity.getUserId().equals(user))
+                .filter(entity -> entity.getCardId().equals(card.getCardId()))
+                .findFirst();
+
+        if (entityOptional.isEmpty()) {
+            throw new PokeCardNotFoundException();
+        }
+
+        this.repository.deleteById(entityOptional.get().getId());
+    }
+
+    private void deleteUserCollection(UUID user) {
         var entities = this.repository.findAll().stream()
                 .filter(card -> card.getUserId().equals(user))
                 .collect(Collectors.toList());
+
         this.repository.deleteAll(entities);
     }
 
@@ -84,6 +123,12 @@ public class CollectionService {
                         && cardA.getQuantity() > 0)
                 {
                     collection.add(cardA);
+                    collectionB.remove(cardB);
+                }
+
+                if (cardA.getCardId().equals(cardB.getCardId())
+                        && cardA.getQuantity() == 0)
+                {
                     collectionB.remove(cardB);
                 }
             }
