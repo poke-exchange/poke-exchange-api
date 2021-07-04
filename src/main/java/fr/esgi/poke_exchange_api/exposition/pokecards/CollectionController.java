@@ -1,14 +1,11 @@
 package fr.esgi.poke_exchange_api.exposition.pokecards;
 
 import fr.esgi.poke_exchange_api.domain.pokecards.services.CollectionService;
-import fr.esgi.poke_exchange_api.domain.user.UserNotFoundException;
-import fr.esgi.poke_exchange_api.domain.user.UserService;
+import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
+import fr.esgi.poke_exchange_api.exposition.pokecards.validators.CollectionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -17,20 +14,28 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CollectionController {
 
-    private final UserService userService;
+    private final CollectionValidator validator;
     private final CollectionService collectionService;
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<CollectionResponse> findUserCollection(@PathVariable UUID id) {
-        try {
-            this.userService.findOneById(id);
-            var cards = this.collectionService.findUserCollection(id);
-
-            return ResponseEntity.ok(new CollectionResponse(id, cards));
-
-        } catch (UserNotFoundException exception) {
+    public ResponseEntity<Collection> findUserCollection(@PathVariable UUID id) {
+        if (this.validator.isNotExistingUser(id)) {
             return ResponseEntity.badRequest().build();
         }
+
+        var cards = this.collectionService.findUserCollection(id);
+
+        return ResponseEntity.ok(new Collection(id, cards));
     }
 
+    @PostMapping
+    public ResponseEntity<?> saveCollection(@RequestBody Collection request) {
+        if (!this.validator.isValid(request)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        this.collectionService.saveCollection(request);
+
+        return ResponseEntity.ok().build();
+    }
 }

@@ -2,6 +2,7 @@ package fr.esgi.poke_exchange_api.domain.pokecards.services;
 
 import fr.esgi.poke_exchange_api.domain.pokecards.mappers.CollectedCardMapper;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
+import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
 import fr.esgi.poke_exchange_api.infrastructure.pokecards.CollectedCardsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,95 @@ public class CollectionService {
             collection.add(this.mapper.from(item));
         }
 
-        collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
+        if (!collection.isEmpty()) {
+            collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
+        }
 
         return collection;
     }
+
+    public void saveCollection(Collection request) {
+        var userCollection = this.findUserCollection(request.getUserId());
+
+        if (collectionsAreEqual(request.getCards(), userCollection)) {
+            return;
+        }
+
+        var collection = request.getCards();
+
+        if (request.getCards().isEmpty()) {
+            collection = this.mergeCollections(request.getCards(), userCollection);
+            collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
+            this.deleteUserCollection(request.getUserId());
+        }
+
+        for (var card : collection) {
+            this.repository.save(this.mapper.from(request.getUserId(), card));
+        }
+    }
+
+    public void deleteUserCollection(UUID user) {
+        var entities = this.repository.findAll().stream()
+                .filter(card -> card.getUserId().equals(user))
+                .collect(Collectors.toList());
+        this.repository.deleteAll(entities);
+    }
+
+    private List<CollectedCard> mergeCollections(List<CollectedCard> collectionA, List<CollectedCard> collectionB) {
+        var collection = new ArrayList<CollectedCard>();
+        var currentCardIds = this.sortAndMap(collectionB, "id");
+
+        for (var card : collectionA) {
+            if (!currentCardIds.contains(card.getCardId())) {
+                collection.add(card);
+                collectionA.remove(card);
+            }
+        }
+
+        for (var cardA : collectionA) {
+            for (var cardB : collectionB) {
+                if (cardA.getCardId().equals(cardB.getCardId())
+                        && cardA.getQuantity() > 0)
+                {
+                    collection.add(cardA);
+                    collectionB.remove(cardB);
+                }
+            }
+        }
+
+        collection.addAll(collectionB);
+
+        return collection;
+    }
+
+    private boolean collectionsAreEqual(List<CollectedCard> collectionA, List<CollectedCard> collectionB) {
+        if (collectionA.size() != collectionB.size()) {
+            return false;
+        }
+
+        var idsOfA = this.sortAndMap(collectionA, "id");
+        var idsOfB = this.sortAndMap(collectionB, "id");
+        var quantitiesOfA = this.sortAndMap(collectionA, "quantity");
+        var quantitiesOfB = this.sortAndMap(collectionB, "quantity");
+
+
+        return idsOfA.equals(idsOfB) && quantitiesOfA.equals(quantitiesOfB);
+    }
+
+    private List<Integer> sortAndMap(List<CollectedCard> collection, String property) {
+        collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
+        var result = collection.stream()
+                .map(CollectedCard::getCardId)
+                .collect(Collectors.toList());
+
+        if (property.equals("quantity")) {
+            result = collection.stream()
+                    .map(CollectedCard::getQuantity)
+                    .collect(Collectors.toList());
+        }
+
+        return result;
+    }
 }
+
+
