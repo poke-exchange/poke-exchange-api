@@ -1,5 +1,6 @@
 package fr.esgi.poke_exchange_api.domain.pokecards.services;
 
+import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.EmptyCollectionRequestException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.PokeCardNotFoundException;
 import fr.esgi.poke_exchange_api.domain.pokecards.mappers.CollectedCardMapper;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
@@ -48,9 +49,13 @@ public class CollectionService {
             return;
         }
 
+        if (request.getCards().isEmpty()) {
+            throw new EmptyCollectionRequestException();
+        }
+
         var collection = request.getCards();
 
-        if (request.getCards().isEmpty()) {
+        if (!userCollection.isEmpty()) {
             collection = this.mergeCollections(request.getCards(), userCollection);
             collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
 
@@ -110,23 +115,30 @@ public class CollectionService {
         var collection = new ArrayList<CollectedCard>();
         var currentCardIds = this.sortAndMap(collectionB, "id");
 
-        for (var card : collectionA) {
+        var tmpA = this.copyCollection(collectionA);
+        for (var card : tmpA) {
             if (!currentCardIds.contains(card.getCardId())) {
-                collection.add(card);
+                var cardIdCollection = this.sortAndMap(collection, "id");
+
+                if (!cardIdCollection.contains(card.getCardId())) {
+                    collection.add(card);
+                }
+
                 collectionA.remove(card);
             }
         }
 
+        var tmpB = this.copyCollection(collectionB);
         for (var cardA : collectionA) {
-            for (var cardB : collectionB) {
+            for (var cardB : tmpB) {
                 if (cardA.getCardId().equals(cardB.getCardId())
-                        && cardA.getQuantity() > 0)
+                        &&
+                    (cardA.getQuantity() > 0 || cardA.getQuantity().equals(cardB.getQuantity())))
                 {
                     collection.add(cardA);
                     collectionB.remove(cardB);
                 }
-
-                if (cardA.getCardId().equals(cardB.getCardId())
+                else if (cardA.getCardId().equals(cardB.getCardId())
                         && cardA.getQuantity() == 0)
                 {
                     collectionB.remove(cardB);
@@ -137,6 +149,19 @@ public class CollectionService {
         collection.addAll(collectionB);
 
         return collection;
+    }
+
+    private List<CollectedCard> copyCollection(List<CollectedCard> collection) {
+        var copiedCollection = new ArrayList<CollectedCard>();
+
+        for (var card : collection) {
+            var copy = new CollectedCard();
+            copy.setCardId(card.getCardId());
+            copy.setQuantity(card.getQuantity());
+            copiedCollection.add(copy);
+        }
+
+        return copiedCollection;
     }
 
     private boolean collectionsAreEqual(List<CollectedCard> collectionA, List<CollectedCard> collectionB) {
