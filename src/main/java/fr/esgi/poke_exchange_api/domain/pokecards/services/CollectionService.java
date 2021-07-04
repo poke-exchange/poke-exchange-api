@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class CollectionService {
         for (var item : userCollection) {
             collection.add(this.mapper.from(item));
         }
+
+        collection.sort(Comparator.comparingInt(CollectedCard::getCardId));
 
         return collection;
     }
