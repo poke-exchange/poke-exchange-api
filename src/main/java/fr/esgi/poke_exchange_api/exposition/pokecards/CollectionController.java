@@ -1,5 +1,6 @@
 package fr.esgi.poke_exchange_api.exposition.pokecards;
 
+import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.EmptyCollectionRequestException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.PokeCardNotFoundException;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
 import fr.esgi.poke_exchange_api.domain.pokecards.services.CollectionService;
@@ -37,7 +38,12 @@ public class CollectionController {
             return ResponseEntity.badRequest().build();
         }
 
-        this.collectionService.saveCollection(request);
+        try {
+            this.collectionService.saveCollection(request);
+
+        } catch (EmptyCollectionRequestException exception) {
+            return ResponseEntity.badRequest().build();
+        }
 
         return ResponseEntity.ok().build();
     }
