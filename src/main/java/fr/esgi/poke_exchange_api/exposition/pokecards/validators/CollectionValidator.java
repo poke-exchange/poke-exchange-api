@@ -27,8 +27,20 @@ public class CollectionValidator {
             }
         }
 
-        return true;
+        return !this.containsDuplicates(collection.getCards());
+    }
 
+    public boolean containsDuplicates(List<CollectedCard> collection) {
+        var set = new HashSet<Integer>();
+
+        for (var card : collection) {
+            if (set.contains(card.getCardId())) {
+                return true;
+            }
+            set.add(card.getCardId());
+        }
+
+        return false;
     }
 
     public boolean isNotExistingUser(UUID userId) {
