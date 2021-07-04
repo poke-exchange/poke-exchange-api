@@ -3,14 +3,18 @@ package fr.esgi.poke_exchange_api.exposition.pokecards;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.EmptyCollectionRequestException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.PokeCardNotFoundException;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
+import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedPokemonCard;
 import fr.esgi.poke_exchange_api.domain.pokecards.services.CollectionService;
+import fr.esgi.poke_exchange_api.domain.pokecards.services.PokemonCardService;
 import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
+import fr.esgi.poke_exchange_api.exposition.pokecards.models.PokemonCollection;
 import fr.esgi.poke_exchange_api.exposition.pokecards.validators.CollectionValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @RestController
@@ -20,6 +24,7 @@ public class CollectionController {
 
     private final CollectionValidator validator;
     private final CollectionService collectionService;
+    private final PokemonCardService pokemonService;
 
     @GetMapping("/user/{id}")
     public ResponseEntity<Collection> findUserCollection(@PathVariable UUID id) {
@@ -30,6 +35,27 @@ public class CollectionController {
         var cards = this.collectionService.findUserCollection(id);
 
         return ResponseEntity.ok(new Collection(id, cards));
+    }
+
+    @GetMapping("/user/{id}/cards")
+    public ResponseEntity<PokemonCollection> findUserPokemonCollection(@PathVariable UUID id) {
+        if (this.validator.isNotExistingUser(id)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var cards = this.collectionService.findUserCollection(id);
+
+        var pokemonCards = new ArrayList<CollectedPokemonCard>();
+        for (var card : cards) {
+            var pokemon = this.pokemonService.findOneById(card.getCardId());
+            var collectedPokemonCard = new CollectedPokemonCard();
+            collectedPokemonCard.setCard(pokemon);
+            collectedPokemonCard.setQuantity(card.getQuantity());
+
+            pokemonCards.add(collectedPokemonCard);
+        }
+
+        return ResponseEntity.ok(new PokemonCollection(id, pokemonCards));
     }
 
     @PostMapping
