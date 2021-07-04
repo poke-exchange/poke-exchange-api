@@ -8,6 +8,8 @@ import fr.esgi.poke_exchange_api.infrastructure.pokeapi.PokemonRangeIds;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Component
