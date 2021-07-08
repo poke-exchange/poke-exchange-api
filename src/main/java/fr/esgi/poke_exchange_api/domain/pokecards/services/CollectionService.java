@@ -6,6 +6,7 @@ import fr.esgi.poke_exchange_api.domain.pokecards.mappers.CollectedCardMapper;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
 import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
 import fr.esgi.poke_exchange_api.infrastructure.pokecards.CollectedCardsRepository;
+import fr.esgi.poke_exchange_api.infrastructure.pokecards.models.CollectedCardEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,19 @@ public class CollectionService {
 
     private final CollectedCardsRepository repository;
     private final CollectedCardMapper mapper;
+
+    public CollectedCard findOneByCardId(Integer id) {
+        var entities = this.repository.findAll();
+        var optional = entities.stream()
+                .filter(entity -> entity.getCardId().equals(id))
+                .findFirst();
+
+        if (optional.isEmpty()) {
+            throw new PokeCardNotFoundException();
+        }
+
+        return this.mapper.from(optional.get());
+    }
 
     public List<CollectedCard> findUserCollection(UUID userId) {
         var collections = this.repository.findAll();
@@ -65,6 +79,30 @@ public class CollectionService {
         for (var card : collection) {
             this.repository.save(this.mapper.from(request.getUserId(), card));
         }
+    }
+
+    public void saveACard(UUID user, CollectedCard card) {
+        var collection = this.findUserCollection(user);
+        var opt = collection.stream()
+                .filter(c -> c.getCardId().equals(card.getCardId()))
+                .findFirst();
+
+        CollectedCardEntity entity;
+        if (opt.isPresent()) {
+            var entityOptional = this.repository.findById(card.getId());
+            if (entityOptional.isEmpty()) {
+                throw new PokeCardNotFoundException();
+            }
+            entity = entityOptional.get();
+
+//            var interval = this.getCardsQuantityDifference(entity.getQuantity(), card.getQuantity());
+//            entity.setQuantity(card.getQuantity() + interval);
+        }
+        else {
+            entity = this.mapper.from(user, card);
+        }
+
+        this.repository.save(entity);
     }
 
     public boolean updateCardQuantity(UUID user, CollectedCard card) {
@@ -156,6 +194,7 @@ public class CollectionService {
 
         for (var card : collection) {
             var copy = new CollectedCard();
+            copy.setId(card.getId());
             copy.setCardId(card.getCardId());
             copy.setQuantity(card.getQuantity());
             copiedCollection.add(copy);
