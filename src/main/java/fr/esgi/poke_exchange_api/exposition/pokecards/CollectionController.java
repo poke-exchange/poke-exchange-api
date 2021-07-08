@@ -49,6 +49,7 @@ public class CollectionController {
         for (var card : cards) {
             var pokemon = this.pokemonService.findOneById(card.getCardId());
             var collectedPokemonCard = new CollectedPokemonCard();
+            collectedPokemonCard.setId(card.getId());
             collectedPokemonCard.setCard(pokemon);
             collectedPokemonCard.setQuantity(card.getQuantity());
 
