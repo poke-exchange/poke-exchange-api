@@ -1,27 +1,66 @@
 package fr.esgi.poke_exchange_api.domain.pokecards.services;
 
+import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.BonusAlreadyReceivedException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.EmptyCollectionRequestException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.PokeCardNotFoundException;
 import fr.esgi.poke_exchange_api.domain.pokecards.mappers.CollectedCardMapper;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
+import fr.esgi.poke_exchange_api.domain.pokecards.models.PokemonCard;
+import fr.esgi.poke_exchange_api.domain.user.UserNotFoundException;
+import fr.esgi.poke_exchange_api.domain.user.UserService;
 import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
+import fr.esgi.poke_exchange_api.infrastructure.pokeapi.PokemonRangeIds;
 import fr.esgi.poke_exchange_api.infrastructure.pokecards.CollectedCardsRepository;
 import fr.esgi.poke_exchange_api.infrastructure.pokecards.models.CollectedCardEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CollectionService {
 
+    private final DailyBonusService dailyBonusService;
+    private final PokemonCardService service;
     private final CollectedCardsRepository repository;
     private final CollectedCardMapper mapper;
+    private final UserService userService;
+
+    public PokemonCard dailyBonusCard(UUID user) {
+        if (!this.dailyBonusService.userCanReceiveDailyBonus(user)) {
+            throw new BonusAlreadyReceivedException();
+        }
+
+        if (!this.userExists(user)) {
+            throw new UserNotFoundException();
+        }
+
+        var randomCardId = this.generateRandomPokemonId();
+        var pokemon = this.service.findOneById(randomCardId);
+
+        CollectedCard card;
+        if (this.ownsCard(user, pokemon.getId())) {
+            card = this.findOneByCardId(pokemon.getId());
+            card.setQuantity(card.getQuantity() + 1);
+
+        } else {
+            card = new CollectedCard();
+            card.setCardId(pokemon.getId());
+            card.setQuantity(1);
+
+        }
+        this.repository.save(this.mapper.from(user, card));
+        this.dailyBonusService.saveBonus(user);
+
+        return pokemon;
+    }
+
+    private int generateRandomPokemonId() {
+        Random r = new Random();
+        return r.nextInt(((int) PokemonRangeIds.lastId - PokemonRangeIds.firstId) + 1) + PokemonRangeIds.firstId;
+    }
 
     public CollectedCard findOneByCardId(Integer id) {
         var entities = this.repository.findAll();
@@ -90,13 +129,12 @@ public class CollectionService {
         CollectedCardEntity entity;
         if (opt.isPresent()) {
             var entityOptional = this.repository.findById(card.getId());
+
             if (entityOptional.isEmpty()) {
                 throw new PokeCardNotFoundException();
             }
-            entity = entityOptional.get();
 
-//            var interval = this.getCardsQuantityDifference(entity.getQuantity(), card.getQuantity());
-//            entity.setQuantity(card.getQuantity() + interval);
+            entity = entityOptional.get();
         }
         else {
             entity = this.mapper.from(user, card);
@@ -230,6 +268,25 @@ public class CollectionService {
         }
 
         return result;
+    }
+
+    public boolean ownsCard(UUID user, Integer cardId) {
+        var collection = this.findUserCollection(user);
+        var exist = collection.stream()
+                .filter(card -> card.getCardId().equals(cardId))
+                .findFirst();
+
+        return exist.isPresent();
+    }
+
+    public boolean userExists(UUID userId) {
+        try {
+            this.userService.findOneById(userId);
+            return true;
+
+        }catch (UserNotFoundException exception) {
+            return false;
+        }
     }
 }
 

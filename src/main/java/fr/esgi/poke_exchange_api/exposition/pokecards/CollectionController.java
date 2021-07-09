@@ -1,9 +1,11 @@
 package fr.esgi.poke_exchange_api.exposition.pokecards;
 
+import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.BonusAlreadyReceivedException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.EmptyCollectionRequestException;
 import fr.esgi.poke_exchange_api.domain.pokecards.exceptions.PokeCardNotFoundException;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedCard;
 import fr.esgi.poke_exchange_api.domain.pokecards.models.CollectedPokemonCard;
+import fr.esgi.poke_exchange_api.domain.pokecards.models.PokemonCard;
 import fr.esgi.poke_exchange_api.domain.pokecards.services.CollectionService;
 import fr.esgi.poke_exchange_api.domain.pokecards.services.PokemonCardService;
 import fr.esgi.poke_exchange_api.exposition.pokecards.models.Collection;
@@ -92,4 +94,20 @@ public class CollectionController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/user/{id}/bonus")
+    public ResponseEntity<PokemonCard> dailyBonus(@PathVariable("id") UUID user) {
+        if (this.validator.isNotExistingUser(user)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            var card = this.collectionService.dailyBonusCard(user);
+            return ResponseEntity.ok(card);
+
+        } catch (BonusAlreadyReceivedException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
 }
