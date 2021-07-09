@@ -21,6 +21,11 @@ public class CollectedCardMapper {
     public CollectedCardEntity from(UUID user, CollectedCard card) {
         var entity = new CollectedCardEntity();
         entity.setUserId(user);
+
+        if (card.getId() != null) {
+            entity.setId(card.getId());
+        }
+
         entity.setCardId(card.getCardId());
         entity.setQuantity(card.getQuantity());
 
